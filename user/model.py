@@ -2,6 +2,7 @@ import uuid
 from flask import request, jsonify, make_response
 from flask_restful import Resource
 from flask_expects_json import expects_json
+import bcrypt
 from db import db
 from user.schema import user_register, user_login
 
@@ -24,6 +25,8 @@ class UserRegister(Resource):
                 "email": user_dict["email"],
                 "password": user_dict["password"]
             }
+            hashed = bcrypt.hashpw(user_dict['password'].encode("utf-8"), bcrypt.gensalt())
+            user["password"] = hashed
             db["users"].insert_one(user)
             del user["password"]
             return make_response(jsonify(user), 201)
@@ -37,10 +40,10 @@ class UserLogin(Resource):
         user = db["users"].find_one({
             "email": user_login_dict["email"]
         })
-        if user and user["password"] == user_login_dict["password"]:
+        if user and bcrypt.checkpw(user_login_dict['password'].encode("utf-8"), user["password"]):
             del user["password"]
             return make_response({"user": user}, 200)
-        elif user and user["password"] != user_login_dict["password"]:
+        elif user and not bcrypt.checkpw(b"{user_login_dict['password']}", user["password"]):
             return make_response({"error": "Wrong credentials"}, 400)
         else:
             return make_response({"error": "User not registered, please register"}, 400)

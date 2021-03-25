@@ -10,8 +10,6 @@ flask = "*"
 pymongo = "*"
 flask-restful = "*"
 flask-expects-json = "*"
-bcrypt = "*"
-passlib = "*"
 
 [requires]
 python_version = "3.8"
