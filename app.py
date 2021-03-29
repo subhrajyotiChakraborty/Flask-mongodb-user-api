@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_jsonschema_validator import JSONSchemaValidator
 from user.model import UserRegister, UserLogin, GetUser
@@ -7,7 +8,9 @@ from user.model import UserRegister, UserLogin, GetUser
 
 app = Flask(__name__)
 api = Api(app)
+app.config["JWT_SECRET_KEY"] = "user-api-test-secret"
 JSONSchemaValidator(app=app, root="schemas")
+jwt = JWTManager(app)
 
 
 api.add_resource(UserRegister, "/user/register")
